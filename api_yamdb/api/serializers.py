@@ -53,3 +53,13 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Comment
+
+
+class RegistrationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True,
+                                     allow_null=False,
+                                     allow_blank=False)
+
+    email = serializers.EmailField(required=True,
+                                   allow_null=False,
+                                   allow_blank=False)
