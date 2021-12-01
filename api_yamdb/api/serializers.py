@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Comment, Review
+from reviews.models import Comment, Review, Titles, Genre, Category
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
@@ -63,3 +63,32 @@ class RegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True,
                                    allow_null=False,
                                    allow_blank=False)
+
+
+class TitlesSerializer(serializers.Serializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='id', queryset=Genre.objects.all(), required=False)
+    category = serializers.SlugRelatedField(
+        slug_field='id', queryset=Category.objects.all(), required=False)
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = Titles
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.Serializer):
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class GenreSerializer(serializers.Serializer):
+
+    class Meta:
+        model = Genre
+        fields = '__all__'

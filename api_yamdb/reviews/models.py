@@ -31,8 +31,38 @@ class ConfirmationCode(models.Model):
         ]
 
 
+class Genre(models.Model):
+    title = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.title
+
+
+class Category(models.Model):
+    title = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.title
+
+
 class Titles(models.Model):
-    pass
+    title = models.CharField(max_length=200)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name='category'
+    )
+    genre = models.ForeignKey(
+       Genre, on_delete=models.CASCADE, related_name='genre'
+    )
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='author'
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-pub_date']
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
 
 class Review(models.Model):
