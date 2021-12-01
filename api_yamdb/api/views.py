@@ -1,15 +1,18 @@
 import random
 import string
 
-from rest_framework import status
+from django.shortcuts import get_object_or_404
+from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
+from reviews.models import Comment, ConfirmationCode, Review, Titles, User
 
-from .serializers import TokenObtainPairCustomSerializer, RegistrationSerializer
-from reviews.models import User, ConfirmationCode
+from .permissions import IsAuthorOrReadOnlyPermission
+from .serializers import (CommentSerializer, RegistrationSerializer,
+                          ReviewSerializer, TokenObtainPairCustomSerializer)
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -48,3 +51,35 @@ class RegistrationView(GenericAPIView):
         confirmation_code.save()
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Titles, pk=title_id)
+        new_queryset = Review.objects.filter(title=title)
+        return new_queryset
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('titl_id')
+        title = get_object_or_404(Titles, pk=title_id)
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, pk=review_id)
+        new_queryset = Comment.objects.filter(review=review)
+        return new_queryset
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, pk=review_id)
+        serializer.save(author=self.request.user, review=review)
