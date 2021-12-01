@@ -5,9 +5,16 @@ from reviews.models import Comment, Review
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['username'] = serializers.CharField()
+        self.fields['confirmation_code'] = serializers.CharField()
+        self.fields.pop('password')
+
     def validate(self, attrs):
         authenticate_kwargs = {
-            self.username_field: attrs[self.username_field],
+            'username': attrs['username'],
             'confirmation_code': attrs['confirmation_code'],
         }
         try:
@@ -17,7 +24,14 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
 
         self.user = authenticate(**authenticate_kwargs)
 
-        return {}
+        data = {}
+        refresh = self.get_token(self.user)
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        return data
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(

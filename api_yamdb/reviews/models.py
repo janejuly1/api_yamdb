@@ -13,7 +13,26 @@ class User(AbstractUser):
                                  null=True, blank=True)
     email = models.EmailField(max_length=254, null=False, blank=False)
     bio = models.TextField(null=True, blank=True)
-    role = models.CharField(max_length=20,
+    role = models.CharField(max_length=20, choices=ROLE,
+                            default='user', null=False, blank=True)
+
+
+class ConfirmationCode(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='code')
+    code = models.CharField(max_length=255, null=False, blank=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'code'],
+                name='unique_user_code'
+            )
+        ]
+
+
+class Titles(models.Model):
+    pass
 
 
 class Review(models.Model):
