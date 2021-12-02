@@ -2,17 +2,21 @@ import random
 import string
 
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
-from reviews.models import Comment, ConfirmationCode, Review, Titles, User
+from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
+                            Titles, User)
 
 from .permissions import IsAuthorOrReadOnlyPermission
-from .serializers import (CommentSerializer, RegistrationSerializer,
-                          ReviewSerializer, TokenObtainPairCustomSerializer)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, RegistrationSerializer,
+                          ReviewSerializer, TitlesSerializer,
+                          TokenObtainPairCustomSerializer)
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -53,6 +57,28 @@ class RegistrationView(GenericAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+
+class GenresViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = TitlesSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    pagination_class = LimitOffsetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrReadOnlyPermission,)
@@ -64,7 +90,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return new_queryset
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('titl_id')
+        title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Titles, pk=title_id)
         serializer.save(author=self.request.user, title=title)
 
