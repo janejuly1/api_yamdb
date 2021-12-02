@@ -4,7 +4,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from reviews.models import Comment, Review, Titles, Genre, Category, User
 
 
-
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -2,10 +2,11 @@ import random
 import string
 
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets, mixins, filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -61,7 +62,23 @@ class RegistrationView(GenericAPIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdminPermission,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+    lookup_field = 'username'
+
+    def get_object(self):
+        if 'username' in self.kwargs and self.kwargs['username'] == 'me':
+            return self.request.user
+
+        return super().get_object()
+
+    def get_permissions(self):
+        if 'username' in self.kwargs and self.kwargs['username'] == 'me':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminPermission]
+
+        return [permission() for permission in permission_classes]
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
