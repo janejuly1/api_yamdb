@@ -12,11 +12,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
                             Titles, User)
 
-from .permissions import IsAuthorOrReadOnlyPermission
+from .permissions import IsAuthorOrReadOnlyPermission, IsAdminPermission
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitlesSerializer,
-                          TokenObtainPairCustomSerializer)
+                          TokenObtainPairCustomSerializer,
+                          UserSerializer)
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -55,6 +56,12 @@ class RegistrationView(GenericAPIView):
         confirmation_code.save()
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdminPermission,)
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):

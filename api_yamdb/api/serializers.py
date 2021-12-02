@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Comment, Review, Titles, Genre, Category
+from reviews.models import Comment, Review, Titles, Genre, Category, User
+
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
@@ -31,6 +32,18 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
         data['access'] = str(refresh.access_token)
 
         return data
+
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    bio = serializers.CharField(required=False)
+    role = serializers.CharField(required=False)
+
+    class Meta:
+        fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']
+        model = User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
