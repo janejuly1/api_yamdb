@@ -34,10 +34,10 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
+    # author = serializers.SlugRelatedField(
+    #     slug_field='username',
+    #     read_only=True
+    # )
 
     class Meta:
         fields = '__all__'
@@ -45,17 +45,17 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
+    # author = serializers.SlugRelatedField(
+    #     slug_field='username',
+    #     read_only=True
+    # )
 
     class Meta:
         fields = '__all__'
         model = Comment
 
 
-class RegistrationSerializer(serializers.Serializer):
+class RegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True,
                                      allow_null=False,
                                      allow_blank=False)
@@ -65,7 +65,7 @@ class RegistrationSerializer(serializers.Serializer):
                                    allow_blank=False)
 
 
-class TitlesSerializer(serializers.Serializer):
+class TitlesSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='id', queryset=Genre.objects.all(), required=False)
     category = serializers.SlugRelatedField(
@@ -80,14 +80,14 @@ class TitlesSerializer(serializers.Serializer):
         fields = '__all__'
 
 
-class CategorySerializer(serializers.Serializer):
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
         fields = '__all__'
 
 
-class GenreSerializer(serializers.Serializer):
+class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre

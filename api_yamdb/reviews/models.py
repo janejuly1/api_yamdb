@@ -32,27 +32,31 @@ class ConfirmationCode(models.Model):
 
 
 class Genre(models.Model):
-    title = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.title
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.title
 
 
 class Titles(models.Model):
-    title = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+    year = models.IntegerField()
+    rating = models.IntegerField(default=None)
+    description = models.TextField()
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name='category'
     )
     genre = models.ForeignKey(
-       Genre, on_delete=models.CASCADE, related_name='genre'
-    )
+        Genre, on_delete=models.CASCADE, related_name='genre')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='author'
     )
@@ -68,13 +72,13 @@ class Titles(models.Model):
 class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='review')
-    titles = models.ForeignKey(
+    title = models.ForeignKey(
         Titles, on_delete=models.CASCADE, related_name='review')
     text = models.TextField()
     score = models.IntegerField(
-        default=None, validators=[MinValueValidator(1), MaxValueValidator(10)]
+        default=1, validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
 # для вьюшки titles, вычесление рейтинга
@@ -84,8 +88,8 @@ class Review(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'titles'],
-                name='unique_author_titles'
+                fields=['author', 'title'],
+                name='unique_author_title'
             )
         ]
 
@@ -96,5 +100,5 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
