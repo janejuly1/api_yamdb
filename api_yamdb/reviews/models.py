@@ -36,7 +36,7 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Category(models.Model):
@@ -44,7 +44,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Titles(models.Model):
@@ -56,10 +56,9 @@ class Titles(models.Model):
         Category, on_delete=models.CASCADE, related_name='category'
     )
     genre = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, related_name='genre')
+        Genre, on_delete=models.SET_NULL, related_name='genre', null=True)
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='author'
-    )
+        User, on_delete=models.SET_NULL, related_name='author', null=True)
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
