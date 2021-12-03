@@ -35,23 +35,17 @@ class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
-    def __str__(self):
-        return self.title
-
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
-    def __str__(self):
-        return self.title
-
 
 class Titles(models.Model):
     name = models.CharField(max_length=200)
-    year = models.IntegerField()
-    rating = models.IntegerField(default=None)
-    description = models.TextField()
+    year = models.IntegerField(null=True, blank=True)
+    rating = models.IntegerField(null=True, blank=True)
+    description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name='category'
     )
@@ -62,11 +56,6 @@ class Titles(models.Model):
     )
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
-
-    class Meta:
-        ordering = ['-pub_date']
-        verbose_name = 'Произведение'
-        verbose_name_plural = 'Произведения'
 
 
 class Review(models.Model):
