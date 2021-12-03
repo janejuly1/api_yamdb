@@ -77,11 +77,43 @@ class RegistrationSerializer(serializers.ModelSerializer):
                                    allow_blank=False)
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
+        model = Category
+
+
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategorySerializer(value)
+        return serializer.data
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
+        model = Genre
+
+
+class GenreField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = GenreSerializer(value)
+        return serializer.data
+
+
 class TitlesSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(
-        slug_field='id', queryset=Genre.objects.all(), required=False)
-    category = serializers.SlugRelatedField(
-        slug_field='id', queryset=Category.objects.all(), required=False)
+    genre = GenreField(slug_field='slug',
+                       queryset=Genre.objects.all(), many=True)
+    category = CategoryField(slug_field='slug',
+                             queryset=Category.objects.all(), required=False)
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True

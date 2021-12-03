@@ -55,8 +55,8 @@ class Titles(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name='category'
     )
-    genre = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, related_name='genre')
+    genre = models.ManyToManyField(
+        Genre, related_name='genre')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='author'
     )
