@@ -13,7 +13,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
                             Titles, User)
 
-from .permissions import IsAuthorOrReadOnlyPermission, IsAdminPermission
+from .permissions import IsAuthorOrReadOnlyPermission, IsAdminPermission, IsAdminOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitlesSerializer,
@@ -84,20 +84,42 @@ class UserViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name', )
+    lookup_field = 'slug'
+    pagination_class = LimitOffsetPagination
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class GenresViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAdminOrReadOnly, )
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name', )
+    lookup_field = 'slug'
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
+    filter_backends = (filters.SearchFilter, )
+    filterset_fields = ('category', 'genre', 'name', 'year')
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
