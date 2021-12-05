@@ -41,7 +41,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField(null=True, blank=True)
     rating = models.IntegerField(null=True, blank=True)
@@ -62,7 +62,7 @@ class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='review')
     title = models.ForeignKey(
-        Titles, on_delete=models.CASCADE, related_name='review')
+        Title, on_delete=models.CASCADE, related_name='review')
     text = models.TextField()
     score = models.IntegerField(
         'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
@@ -76,10 +76,13 @@ class Review(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'title'],
-                name='unique_author_title'
+                fields=['title', 'author'],
+                name='unique_title_author'
             )
         ]
+
+    def __str__(self):
+        return self.author
 
 
 class Comment(models.Model):
