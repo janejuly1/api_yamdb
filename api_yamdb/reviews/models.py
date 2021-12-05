@@ -65,8 +65,7 @@ class Review(models.Model):
         Titles, on_delete=models.CASCADE, related_name='review')
     text = models.TextField()
     score = models.IntegerField(
-        default=1, validators=[MinValueValidator(1), MaxValueValidator(10)]
-    )
+        'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
