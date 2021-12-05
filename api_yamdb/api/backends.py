@@ -1,16 +1,19 @@
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, ValidationError
 from reviews.models import User, ConfirmationCode
 
 
 class ConfirmationCodeAuthBackend:
     def authenticate(self, request, username=None, confirmation_code=None):
         try:
+            User.objects.get(username=username)
             code = ConfirmationCode.objects.get(
                 user__username=username,
                 code=confirmation_code
             )
+        except User.DoesNotExist:
+            raise NotFound('user not found')
         except ConfirmationCode.DoesNotExist:
-            raise PermissionDenied('user not found')
+            raise ValidationError({'confirmation_code': 'invalid confirmation code'})
 
         return code.user
 

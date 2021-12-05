@@ -4,7 +4,10 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import (Category, Comment,
+                            Genre, Review,
+                            Title, User,
+                            ConfirmationCode)
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
@@ -50,17 +53,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True,
-                                     allow_null=False,
-                                     allow_blank=False,
-                                     validators=[UniqueValidator(
-                                         queryset=User.objects.all())])
+    username = serializers.CharField(
+        required=True,
+        allow_null=False,
+        allow_blank=False,
+        validators=[UniqueValidator(queryset=User.objects.all())])
 
-    email = serializers.EmailField(required=True,
-                                   allow_null=False,
-                                   allow_blank=False,
-                                   validators=[UniqueValidator(
-                                       queryset=User.objects.all())])
+    email = serializers.EmailField(
+        required=True,
+        allow_null=False,
+        allow_blank=False,
+        validators=[UniqueValidator(queryset=User.objects.all())])
 
     def validate(self, attrs):
         if 'username' in attrs and attrs['username'] == 'me':
