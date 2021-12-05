@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Category, Comment, Genre, Review, Titles, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
@@ -89,31 +91,45 @@ class GenreField(serializers.SlugRelatedField):
         return serializer.data
 
 
-class TitlesSerializer(serializers.ModelSerializer):
+class TitleSerializer(serializers.ModelSerializer):
     genre = GenreField(slug_field='slug',
                        queryset=Genre.objects.all(), many=True)
     category = CategoryField(slug_field='slug',
-                             queryset=Category.objects.all(), required=False)
+                             queryset=Category.objects.all(), required=True)
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
     )
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
     # def get_rating(self, obj):
     #     return Titles.objects.annotate(avg_rating=Avg('review__score')).order_by('-avg_score')
 
 
+class CurrentTitleDafault:
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        c_view = serializer_field.context['view']
+        title_id = c_view.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        return title
+
+    def __repr__(self):
+        return '%s()' % self.__class__.__name__
+
+
 class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(
-        slug_field='id',
-        required=False,
-        queryset=Titles.objects.all()
-    )
+    title = serializers.HiddenField(default=CurrentTitleDafault())
+    # author = serializers.SlugRelatedField(
+    #     slug_field='username',
+    #     read_only=True
+    # )
     author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
         slug_field='username',
         read_only=True
     )
@@ -121,6 +137,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
+        validators = (UniqueTogetherValidator(
+            queryset=Review.objects.all(), fields=('title', 'author')),)
 
     # def get_score(self, obj):
     #     return Titles.objects.annotate(avg_rating=Avg('review__score')).order_by('-avg_score')

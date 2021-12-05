@@ -11,13 +11,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
-                            Titles, User)
+                            Title, User)
 
 from .permissions import (IsAuthorOrReadOnlyPermission,
                           IsAdminPermission, IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
-                          ReviewSerializer, TitlesSerializer,
+                          ReviewSerializer, TitleSerializer,
                           TokenObtainPairCustomSerializer,
                           UserSerializer)
 
@@ -114,9 +114,9 @@ class GenresViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter, )
@@ -132,13 +132,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Titles, id=title_id)
+        title = get_object_or_404(Title, id=title_id)
         new_queryset = title.review.all()
         return new_queryset
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Titles, id=title_id)
+        title = get_object_or_404(Title, id=title_id)
         serializer.save(author=self.request.user, title=title)
 
     # def perform_create(self, serializer):
