@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Comment, Review, Titles, Genre, Category, User
+from reviews.models import Category, Comment, Genre, Review, Titles, User
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
@@ -32,6 +33,7 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
 
         return data
 
+
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
@@ -43,28 +45,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']
         model = User
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    # author = serializers.SlugRelatedField(
-    #     slug_field='username',
-    #     read_only=True
-    # )
-
-    class Meta:
-        fields = '__all__'
-        model = Review
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    # author = serializers.SlugRelatedField(
-    #     slug_field='username',
-    #     read_only=True
-    # )
-
-    class Meta:
-        fields = '__all__'
-        model = Comment
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -122,3 +102,42 @@ class TitlesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Titles
         fields = '__all__'
+
+    # def get_rating(self, obj):
+    #     return Titles.objects.annotate(avg_rating=Avg('review__score')).order_by('-avg_score')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(
+        slug_field='id',
+        required=False,
+        queryset=Titles.objects.all()
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Review
+
+    # def get_score(self, obj):
+    #     return Titles.objects.annotate(avg_rating=Avg('review__score')).order_by('-avg_score')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(
+        slug_field='id',
+        # many=True,
+        required=False,
+        queryset=Review.objects.all()
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
