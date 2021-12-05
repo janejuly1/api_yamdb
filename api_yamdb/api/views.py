@@ -3,19 +3,20 @@ import string
 
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, mixins, filters
-from rest_framework.exceptions import ValidationError
+from rest_framework import status, viewsets, filters
+from rest_framework.exceptions import ValidationError, MethodNotAllowed
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
-from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
-                            Title, User)
+from reviews.models import (Category, Comment,
+                            ConfirmationCode, Genre,
+                            Review, Title, User)
 
-from .permissions import (IsAuthorOrReadOnlyPermission,
-                          IsAdminPermission, IsAdminOrReadOnly)
+from .permissions import (IsAuthorOrReadOnlyPermission, IsAdminPermission,
+                          IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleSerializer,
@@ -78,6 +79,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         if 'username' in self.kwargs and self.kwargs['username'] == 'me':
+            if self.request.method == 'DELETE':
+                raise MethodNotAllowed(self.request.method)
+
             return self.request.user
 
         return super().get_object()

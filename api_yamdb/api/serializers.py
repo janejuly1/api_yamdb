@@ -40,16 +40,36 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
+    username = serializers.CharField(
+        required=True,
+        allow_null=False,
+        allow_blank=False,
+        validators=[UniqueValidator(queryset=User.objects.all())])
+    email = serializers.EmailField(
+        required=True,
+        allow_null=False,
+        allow_blank=False,
+        validators=[UniqueValidator(queryset=User.objects.all())])
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)
-    role = serializers.CharField(required=False)
+    role = serializers.ChoiceField(required=False, choices=User.ROLE)
 
     class Meta:
         fields = ['username', 'email', 'first_name', 'last_name', 'bio', 'role']
         model = User
+
+    def validate(self, attrs):
+        if 'request' in self.context:
+            request = self.context['request']
+            user = request.user
+            if (user.is_authenticated
+                    and user.role != 'admin'
+                    and not user.is_superuser
+                    and 'role' in attrs):
+                attrs['role'] = user.role
+
+        return super().validate(attrs)
 
 
 class RegistrationSerializer(serializers.Serializer):
