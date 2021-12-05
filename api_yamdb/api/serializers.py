@@ -49,7 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(required=True,
                                      allow_null=False,
                                      allow_blank=False)

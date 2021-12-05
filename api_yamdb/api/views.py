@@ -45,8 +45,11 @@ class RegistrationView(GenericAPIView):
 
         data = serializer.validated_data
 
-        user = User(username=data['username'], email=data['email'])
-        user.save()
+        try:
+            user = User(username=data['username'], email=data['email'])
+            user.save()
+        except:
+            raise ValidationError()
 
         confirmation_code = ConfirmationCode(
             user=user,
