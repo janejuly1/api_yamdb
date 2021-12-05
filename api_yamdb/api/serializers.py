@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -52,11 +52,21 @@ class UserSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(required=True,
                                      allow_null=False,
-                                     allow_blank=False)
+                                     allow_blank=False,
+                                     validators=[UniqueValidator(
+                                         queryset=User.objects.all())])
 
     email = serializers.EmailField(required=True,
                                    allow_null=False,
-                                   allow_blank=False)
+                                   allow_blank=False,
+                                   validators=[UniqueValidator(
+                                       queryset=User.objects.all())])
+
+    def validate(self, attrs):
+        if 'username' in attrs and attrs['username'] == 'me':
+            raise ValidationError({'username': 'username cannot be me'})
+
+        return super().validate(attrs)
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -1,6 +1,7 @@
 import random
 import string
 
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, mixins, filters
 from rest_framework.exceptions import ValidationError
@@ -29,7 +30,7 @@ class TokenObtainPairCustomView(TokenObtainPairView):
         try:
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
-            raise InvalidToken(e.args[0])
+            raise InvalidToken(serializer.errors)
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
@@ -41,15 +42,12 @@ class RegistrationView(GenericAPIView):
         try:
             serializer.is_valid(raise_exception=True)
         except:
-            raise ValidationError()
+            raise ValidationError(serializer.errors)
 
         data = serializer.validated_data
 
-        try:
-            user = User(username=data['username'], email=data['email'])
-            user.save()
-        except:
-            raise ValidationError()
+        user = User(username=data['username'], email=data['email'])
+        user.save()
 
         confirmation_code = ConfirmationCode(
             user=user,
@@ -59,6 +57,14 @@ class RegistrationView(GenericAPIView):
             ))
         )
         confirmation_code.save()
+
+        send_mail(
+            'Your confirmation code',
+            confirmation_code.code,
+            'admin@yamdb.ru',
+            [user.email],
+            fail_silently=False
+        )
 
         return Response(data, status=status.HTTP_200_OK)
 
