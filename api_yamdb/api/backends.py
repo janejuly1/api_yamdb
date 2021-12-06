@@ -1,5 +1,5 @@
 from rest_framework.exceptions import NotFound, ValidationError
-from reviews.models import User, ConfirmationCode
+from reviews.models import ConfirmationCode, User
 
 
 class ConfirmationCodeAuthBackend:
@@ -13,7 +13,9 @@ class ConfirmationCodeAuthBackend:
         except User.DoesNotExist:
             raise NotFound('user not found')
         except ConfirmationCode.DoesNotExist:
-            raise ValidationError({'confirmation_code': 'invalid confirmation code'})
+            raise ValidationError(
+                {'confirmation_code': 'invalid confirmation code'}
+            )
 
         return code.user
 

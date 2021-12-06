@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(AbstractUser):
@@ -68,10 +68,6 @@ class Review(models.Model):
         'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
-
-# для вьюшки titles, вычесление рейтинга
-# from django.db.models import Avg
-# Titles.objects.annotate(avg_rating=Avg('reviews__score')).order_by('-avg_score')
 
     class Meta:
         constraints = [

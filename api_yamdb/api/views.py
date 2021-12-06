@@ -3,25 +3,23 @@ import string
 
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, filters
-from rest_framework.exceptions import ValidationError, MethodNotAllowed
+from rest_framework import filters, status, viewsets
+from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
-from reviews.models import (Category, Comment,
-                            ConfirmationCode, Genre,
-                            Review, Title, User)
+from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
+                            Title, User)
 
-from .permissions import (IsAuthorOrReadOnlyPermission, IsAdminPermission,
-                          IsAdminOrReadOnly)
+from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
+                          IsAuthorOrReadOnlyPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleSerializer,
-                          TokenObtainPairCustomSerializer,
-                          UserSerializer)
+                          TokenObtainPairCustomSerializer, UserSerializer)
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -76,6 +74,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
+    pagination_class = LimitOffsetPagination
 
     def get_object(self):
         if 'username' in self.kwargs and self.kwargs['username'] == 'me':
@@ -133,6 +132,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter, )
+    filterset_fields = ('slug',)
     filterset_fields = ('category', 'genre', 'name', 'year')
 
     def perform_create(self, serializer):
@@ -142,6 +142,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrReadOnlyPermission,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -154,13 +155,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(Title, id=title_id)
         serializer.save(author=self.request.user, title=title)
 
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user)
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrReadOnlyPermission,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
