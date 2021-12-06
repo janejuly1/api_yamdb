@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -133,13 +134,16 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = '__all__'
 
-    # def get_rating(self, obj):
-    #     return Titles.objects.annotate(avg_rating=Avg('review__score')).order_by('-avg_score')
+    def get_rating(self, obj):
+        self.rating = Title.objects.aggregate(Avg('review__score'))
+        return self.rating
+        # return Title.objects.annotate(avg_rating=Avg('review__score')).order_by('-avg_rating')
 
 
 class CurrentTitleDafault:
