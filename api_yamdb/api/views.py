@@ -15,13 +15,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
                             Title, User)
 
+from .filters import TitleFilter
 from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
                           IsAuthorOrReadOnlyPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleSerializer,
                           TokenObtainPairCustomSerializer, UserSerializer)
-from .filters import TitleFilter
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -30,7 +30,7 @@ class TokenObtainPairCustomView(TokenObtainPairView):
 
         try:
             serializer.is_valid(raise_exception=True)
-        except TokenError as e:
+        except TokenError:
             raise InvalidToken(serializer.errors)
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
@@ -40,10 +40,7 @@ class RegistrationView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = RegistrationSerializer(data=request.data)
 
-        try:
-            serializer.is_valid(raise_exception=True)
-        except:
-            raise ValidationError(serializer.errors)
+        serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
 
@@ -100,8 +97,8 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('name', )
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     lookup_field = 'slug'
     pagination_class = LimitOffsetPagination
 
@@ -120,7 +117,7 @@ class GenresViewSet(CategoriesViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filterset_class = TitleFilter
