@@ -3,6 +3,7 @@ import string
 
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.generics import GenericAPIView
@@ -20,6 +21,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleSerializer,
                           TokenObtainPairCustomSerializer, UserSerializer)
+from .filters import TitleFilter
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -98,7 +100,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = [filters.SearchFilter]
+    filter_backends = (filters.SearchFilter, )
     search_fields = ('name', )
     lookup_field = 'slug'
     pagination_class = LimitOffsetPagination
@@ -110,20 +112,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GenresViewSet(CategoriesViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnly, )
-    filter_backends = [filters.SearchFilter]
-    search_fields = ('name', )
-    lookup_field = 'slug'
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def update(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -131,9 +122,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
-    filter_backends = (filters.SearchFilter, )
-    filterset_fields = ('slug',)
-    filterset_fields = ('category', 'genre', 'name', 'year')
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    filterset_class = TitleFilter
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
