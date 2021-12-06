@@ -1,5 +1,4 @@
 from rest_framework import permissions
-
 from reviews.models import Comment, Review
 
 
@@ -37,4 +36,5 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         if request.user.is_authenticated:
-            return bool(request.user.is_superuser or request.user.role == 'admin')
+            return bool(
+                request.user.is_superuser or request.user.role == 'admin')

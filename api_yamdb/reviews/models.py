@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class User(AbstractUser):
@@ -30,7 +30,7 @@ class ConfirmationCode(models.Model):
             )
         ]
 
-##Test
+
 class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -44,7 +44,7 @@ class Category(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField(null=True, blank=True)
-    rating = models.IntegerField(null=True, blank=True)
+    rating = models.IntegerField(default=0)
     description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name='category'
@@ -69,10 +69,6 @@ class Review(models.Model):
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
-# для вьюшки titles, вычесление рейтинга
-# from django.db.models import Avg
-# Titles.objects.annotate(avg_rating=Avg('reviews__score')).order_by('-avg_score')
-
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -80,9 +76,6 @@ class Review(models.Model):
                 name='unique_title_author'
             )
         ]
-
-    def __str__(self):
-        return self.author
 
 
 class Comment(models.Model):
