@@ -1,15 +1,15 @@
-import django_filters
+import django_filters as df
 from reviews.models import Title
 
 
-class TitleFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(field_name='name', lookup_expr='contains')
-    category = django_filters.CharFilter(
+class TitleFilter(df.FilterSet):
+    name = df.CharFilter(field_name='name', lookup_expr='contains')
+    category = df.CharFilter(
         field_name='category__slug', lookup_expr='contains')
-    genre = django_filters.CharFilter(
+    genre = df.CharFilter(
         field_name='genre__slug', lookup_expr='contains'
     )
-    year = django_filters.NumberFilter(
+    year = df.NumberFilter(
         field_name='year', lookup_expr='contains'
     )
 

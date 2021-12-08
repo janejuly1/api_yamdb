@@ -28,12 +28,16 @@ class Test04TitleAPI:
         data = {'name': 'Поворот туда', 'year': 2000, 'genre': [genres[0]['slug'], genres[1]['slug']],
                 'category': categories[0]['slug'], 'description': 'Крутое пике'}
         response = admin_client.post('/api/v1/titles/', data=data)
+        from pprint import pprint 
+        pprint(response.json())
+        
         assert response.status_code == 201, (
             'Проверьте, что при POST запросе `/api/v1/titles/` с правильными данными возвращает статус 201'
         )
         data = {'name': 'Проект', 'year': 2020, 'genre': [genres[2]['slug']], 'category': categories[1]['slug'],
                 'description': 'Главная драма года'}
         response = admin_client.post('/api/v1/titles/', data=data)
+        
         assert response.status_code == 201, (
             'Проверьте, что при POST запросе `/api/v1/titles/` с правильными данными возвращает статус 201'
         )
@@ -117,6 +121,8 @@ class Test04TitleAPI:
         admin_client.post('/api/v1/titles/', data=data)
         response = admin_client.get(f'/api/v1/titles/?genre={genres[1]["slug"]}')
         data = response.json()
+        from pprint import pprint
+        pprint(data) #comedy
         assert len(data['results']) == 2, (
             'Проверьте, что при GET запросе `/api/v1/titles/` фильтуется по `genre` параметру `slug` жанра'
         )

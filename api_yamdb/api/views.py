@@ -20,11 +20,12 @@ from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
 
 from .filters import TitleFilter
 from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
-                          IsAuthorOrReadOnlyPermission)
+                          IsAuthorOrReadOnlyPermission )
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
-                          ReviewSerializer, TitleSerializer,
-                          TokenObtainPairCustomSerializer, UserSerializer)
+                          ReviewSerializer, TitleCreateSerializer,
+                          TitleSerializer, TokenObtainPairCustomSerializer,
+                          UserSerializer)
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -122,17 +123,18 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filterset_class = TitleFilter
 
-    # def get_queryset(self):
-    #     rating = self.obj.reviews.all().aggregate(Avg('score'))['score__avg']
-    #     return rating
-
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH', ):
+            return TitleCreateSerializer
+        return TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAuthorOrReadOnlyPermission, )
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
@@ -149,7 +151,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAuthorOrReadOnlyPermission, )
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
