@@ -74,7 +74,7 @@ class RegistrationSerializer(serializers.Serializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug',)
+        exclude = ('id', )
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
@@ -90,7 +90,7 @@ class CategoryField(serializers.SlugRelatedField):
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'slug',)
+        exclude = ('id', )
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}

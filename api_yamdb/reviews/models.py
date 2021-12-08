@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -55,8 +57,12 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
-    year = models.IntegerField(null=True, blank=True)
-    rating = models.IntegerField(default=0)
+    year = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(datetime.datetime.now().year)],
+    )
     description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name='titles'
@@ -68,6 +74,9 @@ class Title(models.Model):
     )
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-pub_date']
 
 
 class Review(models.Model):
