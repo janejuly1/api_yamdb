@@ -52,7 +52,7 @@ class RegistrationView(GenericAPIView):
 
         confirmation_code = ConfirmationCode(
             user=user,
-            code=uuid.uuid4()
+            code=uuid.uuid4().hex
         )
         confirmation_code.save()
 

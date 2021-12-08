@@ -49,7 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
             request = self.context['request']
             user = request.user
             if (user.is_authenticated
-                    and user.is_admin
+                    and not user.is_admin
                     and 'role' in attrs):
                 attrs['role'] = user.role
 
