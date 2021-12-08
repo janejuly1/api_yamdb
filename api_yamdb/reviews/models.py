@@ -1,26 +1,38 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    ROLE = [('user', 'user'), ('moderator', 'moderator'), ('admin', 'admin')]
+    USER_ROLE = 'user'
+    MODERATOR_ROLE = 'moderator'
+    ADMIN_ROLE = 'admin'
+    ROLE = [(USER_ROLE, 'user'),
+            (MODERATOR_ROLE, 'moderator'),
+            (ADMIN_ROLE, 'admin')]
 
-    first_name = models.CharField(_('first name'), max_length=150,
+    first_name = models.CharField(max_length=150,
                                   null=True, blank=True)
-    last_name = models.CharField(_('last name'), max_length=150,
+    last_name = models.CharField(max_length=150,
                                  null=True, blank=True)
-    email = models.EmailField(max_length=254, null=False, blank=False)
+    email = models.EmailField(max_length=254)
     bio = models.TextField(null=True, blank=True)
     role = models.CharField(max_length=20, choices=ROLE,
-                            default='user', null=False, blank=True)
+                            default=USER_ROLE, blank=True)
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN_ROLE or self.is_superuser
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR_ROLE
 
 
 class ConfirmationCode(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='code')
-    code = models.CharField(max_length=255, null=False, blank=False)
+        User, on_delete=models.CASCADE, related_name='codes')
+    code = models.CharField(max_length=255)
 
     class Meta:
         constraints = [

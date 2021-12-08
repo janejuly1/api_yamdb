@@ -30,5 +30,4 @@ urlpatterns = [
         RegistrationView.as_view(),
         name='registration'
     ),
-    path('v1/', include(v1_router.urls)),
 ]

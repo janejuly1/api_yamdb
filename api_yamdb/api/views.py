@@ -1,6 +1,8 @@
 import random
 import string
+import uuid
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -50,17 +52,14 @@ class RegistrationView(GenericAPIView):
 
         confirmation_code = ConfirmationCode(
             user=user,
-            code=''.join(random.choices(
-                string.ascii_uppercase + string.digits,
-                k=8
-            ))
+            code=uuid.uuid4()
         )
         confirmation_code.save()
 
         send_mail(
             'Your confirmation code',
             confirmation_code.code,
-            'admin@yamdb.ru',
+            settings.ADMIN_EMAIL,
             [user.email],
             fail_silently=False
         )

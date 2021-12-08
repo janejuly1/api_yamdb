@@ -22,10 +22,9 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
             'username': attrs['username'],
             'confirmation_code': attrs['confirmation_code'],
         }
-        try:
+
+        if 'request' in self.context:
             authenticate_kwargs['request'] = self.context['request']
-        except KeyError:
-            pass
 
         self.user = authenticate(**authenticate_kwargs)
 
@@ -39,21 +38,6 @@ class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        required=True,
-        allow_null=False,
-        allow_blank=False,
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    email = serializers.EmailField(
-        required=True,
-        allow_null=False,
-        allow_blank=False,
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    first_name = serializers.CharField(required=False)
-    last_name = serializers.CharField(required=False)
-    bio = serializers.CharField(required=False)
-    role = serializers.ChoiceField(required=False, choices=User.ROLE)
-
     class Meta:
         fields = [
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
@@ -65,8 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
             request = self.context['request']
             user = request.user
             if (user.is_authenticated
-                    and user.role != 'admin'
-                    and not user.is_superuser
+                    and user.is_admin
                     and 'role' in attrs):
                 attrs['role'] = user.role
 
@@ -76,14 +59,10 @@ class UserSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(
         required=True,
-        allow_null=False,
-        allow_blank=False,
         validators=[UniqueValidator(queryset=User.objects.all())])
 
     email = serializers.EmailField(
         required=True,
-        allow_null=False,
-        allow_blank=False,
         validators=[UniqueValidator(queryset=User.objects.all())])
 
     def validate(self, attrs):
