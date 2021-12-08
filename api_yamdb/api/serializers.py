@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate
 from django.db.models import Avg
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from reviews.models import Category, Comment, Genre, Review, Title, User
+
+from .utils import CurrentReviewDafault, CurrentTitleDafault
 
 
 class TokenObtainPairCustomSerializer(TokenObtainPairSerializer):
@@ -125,8 +126,6 @@ class GenreField(serializers.SlugRelatedField):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    # genre = serializers.SlugRelatedField(slug_field='slug',
-    #                    queryset=Genre.objects.all(), many=True)
     genre = GenreField(slug_field='slug',
                        queryset=Genre.objects.all(), many=True)
     category = CategoryField(slug_field='slug',
@@ -142,21 +141,8 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_rating(self, obj):
-        rating = obj.review.all().aggregate(Avg('score'))['score__avg']
+        rating = obj.reviews.all().aggregate(Avg('score'))['score__avg']
         return rating
-
-
-class CurrentTitleDafault:
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        c_view = serializer_field.context['view']
-        title_id = c_view.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        return title
-
-    def __repr__(self):
-        return '%s()' % self.__class__.__name__
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -175,11 +161,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    review = serializers.SlugRelatedField(
-        slug_field='id',
-        required=False,
-        queryset=Review.objects.all()
-    )
+    review = serializers.HiddenField(default=CurrentReviewDafault())
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
