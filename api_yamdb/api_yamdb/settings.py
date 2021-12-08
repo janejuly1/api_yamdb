@@ -117,7 +117,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 15
 }
 
-AUTHENTICATION_BACKENDS = ['api.backends.ConfirmationCodeAuthBackend']
+AUTHENTICATION_BACKENDS = ['api.backends.ConfirmationCodeAuthBackend',
+                           'django.contrib.auth.backends.ModelBackend']
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),

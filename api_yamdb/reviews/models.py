@@ -22,6 +22,10 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE,
                             default=USER_ROLE, blank=True)
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
     @property
     def is_admin(self):
         return self.role == self.ADMIN_ROLE or self.is_superuser

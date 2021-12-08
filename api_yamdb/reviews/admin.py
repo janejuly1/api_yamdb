@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import Title, Category, Genre
+from .models import User, Title, Category, Genre
+
+
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'bio',
+        'role',
+    )
+    list_filter = ('is_staff', 'is_superuser')
 
 
 class TitleAdmin(admin.ModelAdmin):
@@ -19,6 +31,7 @@ class CategoryGenreAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name')
 
 
+admin.site.register(User, UserAdmin)
 admin.site.register(Title, TitleAdmin)
 admin.site.register(Category, CategoryGenreAdmin)
 admin.site.register(Genre, CategoryGenreAdmin)
