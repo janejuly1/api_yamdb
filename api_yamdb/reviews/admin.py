@@ -7,13 +7,12 @@ class TitleAdmin(admin.ModelAdmin):
         'pk',
         'name',
         'category',
-        'genre',
         'author',
         'pub_date',
     )
     search_fields = ('name',)
-    list_editable = ('genre', 'category', )
-    list_filter = ('pub_date', 'category', 'genre', )
+    list_editable = ('category', )
+    list_filter = ('pub_date', 'category', )
 
 
 class CategoryGenreAdmin(admin.ModelAdmin):
