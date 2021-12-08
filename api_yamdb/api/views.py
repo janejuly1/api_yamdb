@@ -20,7 +20,7 @@ from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
 
 from .filters import TitleFilter
 from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
-                          IsAuthorOrReadOnlyPermission)
+                          IsAuthorOrReadOnlyPermission )
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleCreateSerializer,
