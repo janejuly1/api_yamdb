@@ -2,6 +2,7 @@ import random
 import string
 
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
@@ -15,13 +16,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
                             Title, User)
 
+from .filters import TitleFilter
 from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
                           IsAuthorOrReadOnlyPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleSerializer,
                           TokenObtainPairCustomSerializer, UserSerializer)
-from .filters import TitleFilter
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
@@ -125,6 +126,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filterset_class = TitleFilter
 
+    # def get_queryset(self):
+    #     rating = self.obj.reviews.all().aggregate(Avg('score'))['score__avg']
+    #     return rating
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
@@ -137,7 +142,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, id=title_id)
-        new_queryset = title.review.all()
+        new_queryset = title.reviews.all()
         return new_queryset
 
     def perform_create(self, serializer):

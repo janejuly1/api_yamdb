@@ -47,12 +47,12 @@ class Title(models.Model):
     rating = models.IntegerField(default=0)
     description = models.TextField(blank=True)
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name='category'
+        Category, on_delete=models.CASCADE, related_name='titles'
     )
     genre = models.ManyToManyField(
-        Genre, related_name='genre')
+        Genre, related_name='titles')
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='author'
+        User, on_delete=models.CASCADE, related_name='titles'
     )
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
@@ -60,9 +60,9 @@ class Title(models.Model):
 
 class Review(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='review')
+        User, on_delete=models.CASCADE, related_name='reviews')
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='review')
+        Title, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField()
     score = models.IntegerField(
         'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
