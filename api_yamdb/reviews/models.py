@@ -49,10 +49,18 @@ class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
 
 class Title(models.Model):
@@ -76,6 +84,8 @@ class Title(models.Model):
         'Дата добавления', auto_now_add=True, db_index=True)
 
     class Meta:
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
         ordering = ['-pub_date']
 
 
