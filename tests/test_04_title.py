@@ -117,6 +117,8 @@ class Test04TitleAPI:
         admin_client.post('/api/v1/titles/', data=data)
         response = admin_client.get(f'/api/v1/titles/?genre={genres[1]["slug"]}')
         data = response.json()
+        from pprint import pprint
+        pprint(data) #comedy
         assert len(data['results']) == 2, (
             'Проверьте, что при GET запросе `/api/v1/titles/` фильтуется по `genre` параметру `slug` жанра'
         )
