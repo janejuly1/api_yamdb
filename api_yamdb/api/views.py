@@ -1,5 +1,3 @@
-import random
-import string
 import uuid
 
 from django.conf import settings
@@ -20,7 +18,7 @@ from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
 
 from .filters import TitleFilter
 from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
-                          IsAuthorOrReadOnlyPermission )
+                          IsAuthorOrReadOnlyPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleCreateSerializer,
@@ -116,7 +114,8 @@ class GenresViewSet(CategoriesViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).all()
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
