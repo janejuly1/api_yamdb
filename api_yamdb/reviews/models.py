@@ -106,8 +106,10 @@ class Review(models.Model):
         verbose_name='Произведение'
     )
     text = models.TextField(verbose_name='Комментарий')
-    score = models.IntegerField(
-        'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
+    score = models.PositiveSmallIntegerField(
+        'Оценка',
+        null=False,
+        validators=[MinValueValidator(1), MaxValueValidator(10)])
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
