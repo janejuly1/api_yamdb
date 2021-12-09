@@ -44,7 +44,6 @@ class Category(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField(null=True, blank=True)
-    rating = models.IntegerField(default=0)
     description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name='titles'
@@ -64,8 +63,11 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField()
-    score = models.IntegerField(
-        'Оценка', validators=[MinValueValidator(1), MaxValueValidator(10)])
+    score = models.PositiveSmallIntegerField(
+        'Оценка',
+        null=False,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 

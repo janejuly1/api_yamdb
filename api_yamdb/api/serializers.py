@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
@@ -134,15 +133,11 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        rating = obj.reviews.all().aggregate(Avg('score'))['score__avg']
-        return rating
 
 
 class ReviewSerializer(serializers.ModelSerializer):

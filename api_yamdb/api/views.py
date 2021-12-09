@@ -119,16 +119,13 @@ class GenresViewSet(CategoriesViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).all()
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filterset_class = TitleFilter
-
-    # def get_queryset(self):
-    #     rating = self.obj.reviews.all().aggregate(Avg('score'))['score__avg']
-    #     return rating
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
