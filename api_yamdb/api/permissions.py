@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from reviews.models import User, Comment, Review
+from reviews.models import Comment, Review, User
+
 
 class IsAuthorOrReadOnlyPermission(permissions.BasePermission):
     def has_permission(self, request, view):
