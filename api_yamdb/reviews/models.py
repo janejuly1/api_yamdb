@@ -1,8 +1,18 @@
 import datetime
 
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+def year_validator(value):
+    if value > datetime.datetime.now().year:
+        raise ValidationError(
+            _('%(value)s is not a correcrt year!'),
+            params={'value': value},
+        )
 
 
 class User(AbstractUser):
@@ -72,8 +82,7 @@ class Title(models.Model):
     year = models.IntegerField(
         null=True,
         blank=True,
-        validators=[MinValueValidator(0),
-                    MaxValueValidator(datetime.datetime.now().year)],
+        validators=[year_validator],
         verbose_name='Год выпуска'
     )
     description = models.TextField(blank=True, verbose_name='Описание')
