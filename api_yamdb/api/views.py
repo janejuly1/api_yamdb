@@ -6,7 +6,6 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
-from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.generics import GenericAPIView
@@ -77,7 +76,8 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = [IsAdminPermission]
 
-    @action(detail=False, url_path='me', methods=['get', 'patch'], permission_classes=[IsAuthenticated])
+    @action(detail=False, url_path='me',
+            methods=['get', 'patch'], permission_classes=[IsAuthenticated])
     def me(self, request, *args, **kwargs):
         if request.method.lower() == 'get':
             return self.retrieve_me(request)
