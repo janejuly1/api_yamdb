@@ -6,6 +6,8 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
+from rest_framework import permissions
+from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import LimitOffsetPagination
@@ -18,7 +20,7 @@ from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
 
 from .filters import TitleFilter
 from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
-                          IsAuthorOrReadOnlyPermission)
+                          ReviewsAndCommentsPermissions)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleCreateSerializer,
@@ -73,23 +75,30 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     lookup_field = 'username'
     pagination_class = LimitOffsetPagination
+    permission_classes = [IsAdminPermission]
 
-    def get_object(self):
-        if 'username' in self.kwargs and self.kwargs['username'] == 'me':
-            if self.request.method == 'DELETE':
-                raise MethodNotAllowed(self.request.method)
+    @action(detail=False, url_path='me', methods=['get', 'patch'], permission_classes=[IsAuthenticated])
+    def me(self, request, *args, **kwargs):
+        if request.method.lower() == 'get':
+            return self.retrieve_me(request)
 
-            return self.request.user
+        if request.method.lower() == 'patch':
+            return self.update_me(request)
 
-        return super().get_object()
+        raise MethodNotAllowed(request.method)
 
-    def get_permissions(self):
-        if 'username' in self.kwargs and self.kwargs['username'] == 'me':
-            permission_classes = [IsAuthenticated]
-        else:
-            permission_classes = [IsAdminPermission]
+    def retrieve_me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
-        return [permission() for permission in permission_classes]
+    def update_me(self, request):
+        serializer = self.get_serializer(request.user,
+                                         data=request.data,
+                                         partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
@@ -133,7 +142,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission, )
+    permission_classes = (ReviewsAndCommentsPermissions, )
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
@@ -150,7 +159,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission, )
+    permission_classes = (ReviewsAndCommentsPermissions, )
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
