@@ -1,18 +1,8 @@
-import datetime
-
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
-
-def year_validator(value):
-    if value > datetime.datetime.now().year:
-        raise ValidationError(
-            _('%(value)s is not a correcrt year!'),
-            params={'value': value},
-        )
+from .validators import year_validator
 
 
 class User(AbstractUser):

@@ -14,17 +14,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
-from reviews.models import (Category, Comment, ConfirmationCode, Genre, Review,
-                            Title, User)
 
+from reviews.models import (
+    Category, Comment, ConfirmationCode, Genre, Review, Title, User,
+)
 from .filters import TitleFilter
-from .permissions import (IsAdminOrReadOnly, IsAdminPermission,
-                          ReviewsAndCommentsPermissions)
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, RegistrationSerializer,
-                          ReviewSerializer, TitleCreateSerializer,
-                          TitleSerializer, TokenObtainPairCustomSerializer,
-                          UserSerializer)
+from .permissions import (
+    IsAdminOrReadOnly, IsAdminPermission, ReviewsAndCommentsPermissions,
+)
+from .serializers import (
+    CategorySerializer, CommentSerializer, GenreSerializer,
+    RegistrationSerializer, ReviewSerializer, TitleCreateSerializer,
+    TitleSerializer, TokenObtainPairCustomSerializer, UserSerializer,
+)
 
 
 class TokenObtainPairCustomView(TokenObtainPairView):
